@@ -43,12 +43,12 @@ def parse_direct_mention(message_text):
     return (matches.group(1), matches.group(2).strip()) if matches else (None, None)
 
 def trends():
-    
-	consumer_key = environ.get('consumer_key', None)
+
+    consumer_key = environ.get('consumer_key', None)
     consumer_secret = environ.get('consumer_secret', None)
     access_token = environ.get('access_token', None)
     access_token_secret = environ.get('access_token_secret', None) 
-    
+
     auth = OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
     api = API(auth)

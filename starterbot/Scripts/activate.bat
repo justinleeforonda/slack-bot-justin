@@ -1,5 +1,5 @@
 @echo off
-set "VIRTUAL_ENV=C:\Users\justinef\Desktop\Python\starterbot\starterbot"
+set "VIRTUAL_ENV=C:\Users\justinef\Desktop\Python\Repo\slack-bot-justin\starterbot"
 
 if defined _OLD_VIRTUAL_PROMPT (
     set "PROMPT=%_OLD_VIRTUAL_PROMPT%"
