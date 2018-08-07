@@ -7,7 +7,7 @@ from json import loads
 from tweepy.api import API
 from tweepy.auth import OAuthHandler
 from slackclient import SlackClient
-import sched, time
+import schedule, time
 
 
 # instantiate Slack client
@@ -42,12 +42,14 @@ def parse_direct_mention(message_text):
     # the first group contains the username, the second group contains the remaining message
     return (matches.group(1), matches.group(2).strip()) if matches else (None, None)
 
-def trends():
+def trends(channel='assignment1',scheduled=True):
 
-    consumer_key = environ.get('consumer_key', None)
-    consumer_secret = environ.get('consumer_secret', None)
-    access_token = environ.get('access_token', None)
-    access_token_secret = environ.get('access_token_secret', None) 
+    #consumer_key = environ.get('consumer_key', None)
+    #consumer_secret = environ.get('consumer_secret', None)
+    #access_token = environ.get('access_token', None)
+    #access_token_secret = environ.get('access_token_secret', None) 
+	
+    
 
     auth = OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
@@ -66,6 +68,9 @@ def trends():
         trendy.append((trend["name"]))
 
     trending = ', \n'.join(trendy[:10])
+	
+    if scheduled:
+		slack_client.api_call("chat.postMessage",channel=channel,text=trending)
 
     return trending		
 	
@@ -79,11 +84,12 @@ def handle_command(command, channel):
 
     # Finds and executes the given command, filling in response
     response = None
-    # This is where you start to implement more commands!
+    scheduled =False
+	# This is where you start to implement more commands!
     if command.startswith(EXAMPLE_COMMAND):
         response = "Sure...write some more code then I can do that!"
     else:
-		response = trends()
+		response = trends(channel,scheduled)
 
     # Sends the response back to the channel
     slack_client.api_call(
@@ -100,7 +106,10 @@ if __name__ == "__main__":
         print("Starter Bot connected and running!")
         # Read bot's user ID by calling Web API method `auth.test`
         starterbot_id = slack_client.api_call("auth.test")["user_id"]
+        schedule.every().minutes.do(trends)
         while True:
+            schedule.run_pending()
+            time.sleep(RTM_READ_DELAY)
             command, channel = parse_bot_commands(slack_client.rtm_read())
             if command:
                 handle_command(command, channel)
